@@ -1,0 +1,42 @@
+---
+meta:
+  author: Gen Tobimatsu
+  description: >
+    Sub-directory sibling of 9522122: /author/ archives below a WordPress
+    base listed in tx.wphard.base_paths.
+  enabled: true
+  name: 9522163.yaml
+tests:
+  - test_title: 9522163-1
+    desc: >
+      Sub-directory WordPress (base_paths /|/blog) with author archive
+      blocking enabled: /blog/author/john-doe/ is caught by 9522163.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+            X-WPHard-Enable-Author-Archives: '1'
+          port: 80
+          method: GET
+          uri: /blog/author/john-doe/
+        output:
+          log_contains: id "9522163"
+  - test_title: 9522163-2
+    desc: >
+      Root author archives stay with 9522122; the sibling stays silent.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+            X-WPHard-Enable-Author-Archives: '1'
+          port: 80
+          method: GET
+          uri: /author/john-doe/
+        output:
+          no_log_contains: id "9522163"

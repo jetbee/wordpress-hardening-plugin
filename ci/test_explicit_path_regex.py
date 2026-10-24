@@ -15,7 +15,8 @@ def rule_pattern(rule_id):
         (
             rule
             for rule in re.finditer(
-                r'SecRule REQUEST_FILENAME "([^"]+)"\s*\\\s*"id:(\d+),', RULES
+                r'SecRule (?:REQUEST_FILENAME|TX:wphard\.wp_path) "([^"]+)"\s*\\\s*"id:(\d+),',
+                RULES,
             )
             if rule.group(2) == str(rule_id)
         ),

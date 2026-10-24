@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RULES = ROOT / "plugins/wordpress-hardening-before.conf"
-IDS = (9522121, 9522701, 9522702, 9522703)
+IDS = (9522121, 9522162, 9522701, 9522702, 9522703)
 EXEMPTION = "#crs-linter:ignore:pass_nolog"
 
 

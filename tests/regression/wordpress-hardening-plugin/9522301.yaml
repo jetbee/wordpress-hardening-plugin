@@ -53,3 +53,18 @@ tests:
             text
         output:
           log_contains: id "9522301"
+  - test_title: 9522301-4
+    desc: >
+      Sub-directory WordPress: the theme editor of the /blog install is blocked.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/wp-admin/theme-editor.php
+        output:
+          log_contains: id "9522301"

@@ -104,3 +104,18 @@ tests:
           uri: /wp-config.php.s%2561ve
         output:
           no_log_contains: id "9522114"
+  - test_title: 9522114-6
+    desc: >
+      Sub-directory WordPress: /blog/wp-config.php.bak is caught by the sibling rule 9522172.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/wp-config.php.bak
+        output:
+          log_contains: id "9522172"

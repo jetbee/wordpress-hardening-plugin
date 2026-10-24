@@ -69,3 +69,51 @@ tests:
             text
         output:
           log_not_contains: id "9522102"
+  - test_title: 9522102-4
+    desc: >
+      Sub-directory WordPress (base_paths /|/blog): /blog/xmlrpc.php from a public client is blocked.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+            X-Forwarded-For: '8.8.8.8'
+          port: 80
+          method: GET
+          uri: /blog/xmlrpc.php
+        output:
+          log_contains: id "9522102"
+  - test_title: 9522102-5
+    desc: >
+      Whole-segment match: /blogx/ is not the /blog install, so /blogx/xmlrpc.php is not xmlrpc.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+            X-Forwarded-For: '8.8.8.8'
+          port: 80
+          method: GET
+          uri: /blogx/xmlrpc.php
+        output:
+          no_log_contains: id "9522102"
+  - test_title: 9522102-6
+    desc: >
+      Root WordPress in a nested site still covers /xmlrpc.php.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+            X-Forwarded-For: '8.8.8.8'
+          port: 80
+          method: GET
+          uri: /xmlrpc.php
+        output:
+          log_contains: id "9522102"

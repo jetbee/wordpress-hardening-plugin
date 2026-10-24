@@ -146,3 +146,18 @@ tests:
           uri: /wp-log%2569n.php
         output:
           no_log_contains: id "9522119"
+  - test_title: 9522119-9
+    desc: >
+      Sub-directory WordPress: TRACE on /blog/wp-login.php is caught by the sibling rule 9522174.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: TRACE
+          uri: /blog/wp-login.php
+        output:
+          log_contains: id "9522174"

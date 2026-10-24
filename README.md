@@ -178,6 +178,18 @@ request and response rules unless `tx.wphard.skip_outside_base_paths=0`
 (`9522086`); client-based rules (`9522400`-`9522699`) still apply. The default
 `/` keeps the previous behaviour.
 
+The path rules anchored at the WordPress root also apply below each listed
+base: `9522102`, `9522107`, `9522111`, `9522205`, `9522207`, `9522301`,
+`9522303` and `9522317` test `tx.wphard.wp_path` directly (identical to
+`REQUEST_FILENAME` for a root install). Rules that deliberately test the raw
+request path keep doing so for the root install and get a sibling that runs
+only below a non-root base: `9522160` (SureTriggers, `9522132`), `9522161`
+(Bricks, `9522118`), `9522162` (BREACH marker, `9522121`), `9522163` (author
+archives, `9522122`), `9522170` (`9522100`), `9522171` (`9522112`), `9522172`
+(`9522114`), `9522173` (`9522115`) and `9522174` (`9522119`). The siblings
+see the path URL-decoded once, the same single decode the raw-path rules
+apply.
+
 **Important note on `block_admin_login`**: This rule blocks login attempts that use the **literal username "admin"** — it does NOT block all administrator accounts. Only WordPress installations with a user named exactly "admin" will be affected.
 
 ## IP-Based Rate Limiting (opt-in, Apache/mod_security2 only)
@@ -369,6 +381,7 @@ The plugin uses the allocated range **9522000-9522999**. Major buckets:
 | `9522101`-`9522111` | xmlrpc / user-enumeration / REST API / admin-login / wp-cron blocks |
 | `9522126`-`9522131` | Load budget helpers for `9522112` |
 | `9522140`-`9522147` | WordPress base-path resolution (`tx.wphard.base_paths`, `wp_base`, `wp_path`, `in_wp`) |
+| `9522160`-`9522174` | Sub-directory siblings of raw-path rules (only when `wp_base` is not `/`) |
 | `9522150`-`9522155` | Per-group whitelist (uses `client_is_private`) |
 | `9522198` | Exact-path skip for known benign static assets |
 | `9522199`-`9522207` | Static-asset fast path, direct-PHP guard, files.data, uploads, sensitive files |

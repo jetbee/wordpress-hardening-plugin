@@ -223,3 +223,18 @@ tests:
           uri: /site-backup
         output:
           log_not_contains: id "9522303"
+  - test_title: 9522303-16
+    desc: >
+      Sub-directory WordPress: a backup directory below the /blog install is blocked.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/backup/site.zip
+        output:
+          log_contains: id "9522303"

@@ -83,3 +83,33 @@ tests:
             {}
         output:
           no_log_contains: id "9522118"
+  - test_title: 9522118-3
+    desc: >
+      Sub-directory WordPress: Bricks render_element below /blog is caught by 9522161.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: POST
+          uri: /blog/wp-json/bricks/v1/render_element
+        output:
+          log_contains: id "9522161"
+  - test_title: 9522118-4
+    desc: >
+      Sub-directory WordPress: the rest_route form below /blog is caught by 9522161.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: POST
+          uri: '/blog/index.php?rest_route=/bricks/v1/render_element'
+        output:
+          log_contains: id "9522161"

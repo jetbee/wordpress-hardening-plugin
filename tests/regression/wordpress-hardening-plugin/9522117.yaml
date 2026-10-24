@@ -329,3 +329,18 @@ tests:
           data: rest_route=/sure-triggers/v1/x
         output:
           no_log_contains: id "9522117"
+  - test_title: 9522117-21
+    desc: >
+      Sub-directory WordPress: the SureTriggers route below /blog sets the probe flag (9522160).
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: POST
+          uri: /blog/wp-json/sure-triggers/v1/connection/create-wp-connection
+        output:
+          log_contains: id "9522117"

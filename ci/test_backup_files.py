@@ -12,7 +12,7 @@ class TestBackupFiles(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         match = re.search(
-            r'SecRule REQUEST_FILENAME "@rx ([^"]+)"\s*\\\s*"id:9522303,',
+            r'SecRule (?:REQUEST_FILENAME|TX:wphard\.wp_path) "@rx ([^"]+)"\s*\\\s*"id:9522303,',
             RULES,
         )
         if match is None:

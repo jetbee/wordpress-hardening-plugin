@@ -467,3 +467,33 @@ tests:
           uri: /license.txt%3fextra
         output:
           no_log_contains: id "9522100"
+  - test_title: 9522100-43
+    desc: >
+      Sub-directory WordPress: /blog/readme.html is caught by the sibling rule 9522170.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/readme.html
+        output:
+          log_contains: id "9522170"
+  - test_title: 9522100-44
+    desc: >
+      Root install in a nested site: /readme.html stays with 9522100, the sibling stays silent.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /readme.html
+        output:
+          no_log_contains: id "9522170"
