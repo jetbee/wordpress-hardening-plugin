@@ -75,6 +75,15 @@ class ResponseOracleTest(unittest.TestCase):
                 )
         self.assertEqual(set(RULE_IDS), observed)
 
+    def test_sub_directory_admin_reaches_tutorial_response(self):
+        for title in ("9522801-7", "9522801-8"):
+            uri = self.regression[title]["input"]["uri"]
+            with self.subTest(title=title):
+                self.assertIsNotNone(self.path_pattern.fullmatch(uri))
+        self.assertEqual(
+            'id "953100"', self.regression["9522801-7"]["output"]["log_contains"]
+        )
+
     def test_other_paths_do_not_receive_php_tutorial_response(self):
         for uri in (
             "/",

@@ -164,6 +164,20 @@ index) and each value is at most 128 bytes, the aggregate cutoff is 1024 bytes.
 Mixed keys, oversized chunks, leading spaces and suffixes such as `load[a]x`
 keep the 80-byte cutoff. Repeated parameters count toward the total.
 
+### WordPress in sub-directories
+
+Set `tx.wphard.base_paths` (example `9522085` in `config.conf`) when WordPress
+does not live only at the root of the vhost: `/blog`, or `/|/blog|/blog2` for
+several or nested installs (lowercase, no trailing slash, up to two segments).
+Rules `9522140`-`9522147` find the deepest listed base for each request and
+set `tx.wphard.wp_path` to the path relative to it, so `9522200` allows
+`/blog/wp-login.php` and `/blog/wp-admin/` and `9522801` keeps the CRS-953
+detectors on `/blog/wp-admin/`. Bases match whole path segments (`/blog` never
+matches `/blog2/`). Requests outside every listed base skip the plugin's
+request and response rules unless `tx.wphard.skip_outside_base_paths=0`
+(`9522086`); client-based rules (`9522400`-`9522699`) still apply. The default
+`/` keeps the previous behaviour.
+
 **Important note on `block_admin_login`**: This rule blocks login attempts that use the **literal username "admin"** — it does NOT block all administrator accounts. Only WordPress installations with a user named exactly "admin" will be affected.
 
 ## IP-Based Rate Limiting (opt-in, Apache/mod_security2 only)
@@ -354,6 +368,7 @@ The plugin uses the allocated range **9522000-9522999**. Major buckets:
 | `9522099` | Plugin kill-switch (removes 9522000-9522999 except itself) |
 | `9522101`-`9522111` | xmlrpc / user-enumeration / REST API / admin-login / wp-cron blocks |
 | `9522126`-`9522131` | Load budget helpers for `9522112` |
+| `9522140`-`9522147` | WordPress base-path resolution (`tx.wphard.base_paths`, `wp_base`, `wp_path`, `in_wp`) |
 | `9522150`-`9522155` | Per-group whitelist (uses `client_is_private`) |
 | `9522198` | Exact-path skip for known benign static assets |
 | `9522199`-`9522207` | Static-asset fast path, direct-PHP guard, files.data, uploads, sensitive files |

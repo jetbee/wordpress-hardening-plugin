@@ -201,3 +201,144 @@ tests:
           uri: /a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/notphp
         output:
           no_log_contains: id "9522200"
+  - test_title: 9522200-14
+    desc: >
+      Sub-directory WordPress (base_paths /|/blog): /blog/wp-login.php is the
+      login of the /blog install and must NOT be scored.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/wp-login.php
+        output:
+          no_log_contains: id "9522200"
+  - test_title: 9522200-15
+    desc: >
+      Sub-directory WordPress: /blog/wp-admin/admin-ajax.php is allowed.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/wp-admin/admin-ajax.php
+        output:
+          no_log_contains: id "9522200"
+  - test_title: 9522200-16
+    desc: >
+      Sub-directory WordPress: PHP under /blog/wp-content/uploads/ is still
+      blocked.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog/wp-content/uploads/shell.php
+        output:
+          log_contains: id "9522200"
+  - test_title: 9522200-17
+    desc: >
+      Whole-segment match: /blog2/ is not /blog, so /blog2/wp-login.php belongs
+      to the root install and stays blocked.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /blog2/wp-login.php
+        output:
+          log_contains: id "9522200"
+  - test_title: 9522200-18
+    desc: >
+      Deepest match in a nested site: /blog-news/wp-login.php belongs to the
+      /blog-news install, not to /.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog|/blog-news'
+          port: 80
+          method: GET
+          uri: /blog-news/wp-login.php
+        output:
+          no_log_contains: id "9522200"
+  - test_title: 9522200-19
+    desc: >
+      Two-segment base: /sites/news/wp-login.php with base_paths /|/sites/news.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/sites/news'
+          port: 80
+          method: GET
+          uri: /sites/news/wp-login.php
+        output:
+          no_log_contains: id "9522200"
+  - test_title: 9522200-20
+    desc: >
+      Outside every listed base (base_paths /blog, no root WordPress): a /cms/
+      Joomla next to the blog is not judged by this plugin.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/blog'
+          port: 80
+          method: GET
+          uri: /cms/administrator/index.php
+        output:
+          no_log_contains: id "9522200"
+  - test_title: 9522200-21
+    desc: >
+      Path normalisation and case: /BLOG//./wp-login.php resolves to the /blog
+      install.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+            X-WPHard-Base-Paths: '/|/blog'
+          port: 80
+          method: GET
+          uri: /BLOG//./wp-login.php
+        output:
+          no_log_contains: id "9522200"
+  - test_title: 9522200-22
+    desc: >
+      Default base_paths (/) is unchanged: /blog/wp-login.php without the
+      setting is still blocked, as before.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers:
+            Host: localhost
+            User-Agent: OWASP CRS
+          port: 80
+          method: GET
+          uri: /blog/wp-login.php
+        output:
+          log_contains: id "9522200"

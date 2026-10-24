@@ -94,3 +94,32 @@ tests:
           uri: /wp-json/953-response-oracle
         output:
           log_contains: 'id "953120"'
+
+  - test_title: 9522801-7
+    desc: >
+      Sub-directory WordPress (base_paths /|/blog): /blog/wp-admin/ is an
+      admin path of the /blog install and keeps the CRS PHP error detector.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers: {Host: localhost, User-Agent: Mozilla/5.0, X-WPHard-Base-Paths: '/|/blog'}
+          port: 80
+          method: GET
+          uri: /blog/wp-admin/953-response-oracle
+        output:
+          log_contains: 'id "953100"'
+
+  - test_title: 9522801-8
+    desc: >
+      Default base_paths (/) is unchanged: without the setting
+      /blog/wp-admin/ is a front-end path of the root install and the
+      CRS-953 detectors are removed, as before.
+    stages:
+      - input:
+          dest_addr: 127.0.0.1
+          headers: {Host: localhost, User-Agent: Mozilla/5.0}
+          port: 80
+          method: GET
+          uri: /blog/wp-admin/953-response-oracle
+        output:
+          no_log_contains: 'id "(?:953100|953110|953120)"'
