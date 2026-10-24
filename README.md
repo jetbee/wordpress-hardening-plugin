@@ -266,6 +266,35 @@ add_header Retry-After $wphard_retry_after always;
 Header always set Retry-After "%{wphard_retry_after}e" env=wphard_retry_after
 ```
 
+### XML-RPC failed-login lockout (opt-in, Apache/mod_security2 only)
+
+`xmlrpc.php` answers a failed login with HTTP 200 and a `<fault>` body
+(`faultCode` 403), and `system.multicall` packs many guesses into one request,
+so neither the login limiter above nor access-log based tools see the attack.
+Sites that keep `xmlrpc.php` open (`block_xmlrpc=0`, for pingbacks, Jetpack or
+remote posting clients) can include
+`plugins/wordpress-hardening-ratelimit-xmlrpc.conf` after the plugin
+before-file, with the same engine scope and collection-growth caveats as the
+login limiter:
+
+```apache
+Include /path/to/plugins/wordpress-hardening-ratelimit-xmlrpc.conf
+```
+
+- Only `POST */xmlrpc.php` from non-private clients is tracked (works for
+  WordPress in sub-directories too); the file enables response body access for
+  those requests only and needs `text/xml` in `SecResponseBodyMimeType`.
+- Each `faultCode` 403 response counts one failure; a failed
+  `system.multicall` carrying `wp.*`, `metaWeblog.*`, `blogger.*` or `mt.*`
+  calls reaches the threshold at once. Successful logins, pingbacks and
+  `system.*` calls never count.
+- **5 failures** (`ratelimit_xmlrpc_failures`, example `9522431`) within
+  **300 s** lock the client out of `xmlrpc.php` for **600 s** with 429
+  (`9522427`, `wphard_retry_after=600`). Rule `9522424` logs the lockout once,
+  for fail2ban. Both windows are fixed (`expirevar` takes no macro).
+- Requires the optional IP include for `tx.wphard.client_ip`; without it the
+  lockout stays off rather than sharing one counter between all clients.
+
 ## GeoIP-Based Access Control for wp-login.php
 
 The country-header checks work with the base plugin. Add the optional IP include
@@ -359,6 +388,7 @@ The plugin uses the allocated range **9522000-9522999**. Major buckets:
 | `9522199`-`9522207` | Static-asset fast path, direct-PHP guard, files.data, uploads, sensitive files |
 | `9522300`-`9522320` | Editor / backup / DB / upload-traversal / null-byte / scanner / debug / login-injection / dangerous-admin |
 | `9522400`-`9522414` | Rate-limit gate, whitelist, per-IP counter (fixed 60s expiry), 429 block |
+| `9522420`-`9522434` | Optional xmlrpc.php failed-login lockout (`ratelimit-xmlrpc.conf`; 9522430-9522431 are config examples) |
 | `9522500`-`9522510` | GeoIP header extraction + login gate |
 | `9522600`-`9522604` | IP reputation gate, whitelist, block |
 
